@@ -253,6 +253,13 @@ def copyLinePoolShortInfo(current, lang, langDict, langs):
         res.append(copyLineShortInfo(line, diction, langs))
     return res
  
+def cleanWholeFolder(path, prefix, suffix):
+    joiner = "" if path.endswith("/") or path.endswith("\\") else "/"
+    with os.scandir(path) as entries:
+        for entry in entries:
+            if entry.is_file() and entry.name.startswith(prefix) and entry.name.endswith(suffix):
+                os.remove(path + joiner + entry.name)
+
 
 
 

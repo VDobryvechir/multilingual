@@ -1,11 +1,13 @@
 from common import *
 
-readyList = ["MAT","MRK","LUK","JHN"]
+readyList = ["MAT","MRK","LUK","JHN","ACT","ROM","GAL"]
 
 
 # ------------------------------------------------------------------------------------------------------ 
-
+problem_folder = "../problemer/"
 NulList=""
+common.dvlib.cleanWholeFolder(problem_folder, "", ".html")
+
 for srcItem in catalog:
     if srcItem['resource']!="bible":
         continue
@@ -35,7 +37,7 @@ for srcItem in catalog:
     if problemCount==0:
         NulList += " " + code
     else:
-        fileName = "../problemer/"+code+".html"
+        fileName = problem_folder +code+".html"
         problemData = str(problemCount) + " problemer<br/>\n" + problemData
         with open(fileName, "w", encoding='utf-8') as fwrt:
                fwrt.write(problemData)
