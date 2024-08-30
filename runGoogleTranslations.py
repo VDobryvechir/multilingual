@@ -1,18 +1,12 @@
-import urllib.request, json, os, dvlib
+from common import *
 
-f = open('config.json')
-config = json.load(f)
-f.close()
 
-catIn = config['sources']['catalogIn']
-textOut = config['sources']['textOut']
-versions = config['versions']
 token = config["sources"]["token"]
 projId = config["sources"]["prosjekt"]
-srcLang="nb"
+srcLang="gr"
 dstLang="en"
-folder="./dictionay/"
-batchSize=50
+folder="../dictionary/"
+batchSize=1
 limitation=1000000
 with open(folder+srcLang+".json", encoding='utf-8') as fsrc:
     rawlist = json.load(fsrc)
@@ -21,7 +15,7 @@ qdict = dvlib.createUnicaseDictionary(rawlist)
 qlist = list(qdict.values())
 nn = len(qlist)
 print(str(nn) + " Translating " + srcLang + " into " + dstLang + " with " + str(batchSize)+ " batch, " + str(n) + " size, " + str(limitation) + " limitation")
-res=dvlib.bulkTranslate(projId, token, qlist, srcLang, dstLang, batchSize, limitation)
+res=common.dvlib.bulkTranslate(projId, token, qlist, srcLang, dstLang, batchSize, limitation)
 m=len(res)
 diction={}
 for i in range(m):
