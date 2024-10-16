@@ -8,20 +8,19 @@ class WordDictionaryMode(IntEnum):
 class WordDictionary:
    @abstractmethod
    #checks that all data are saved locally correct 
-   #mode 0 - just for existing data
-   #     1 - for all words in the dictionary
+   #mode 1 - verbose
+   #     2 - deep check
    def check_consistensy(self, mode):
        pass
 
    @abstractmethod
-   #for nouns returns gender og just noun: fmn | s
-   #for verbs returns v<group of inflection> v0, v1, v2, v3, v4 ....
-   #for prepositions returns p
-   #for adjectives returns a(fmnpfmn) 
-   #for adverbs returns e<0, 1, 2, 3>
-   #for other words returns nothing.
-   #if several opportunities, it returns them all separated by space
-   def grammar_specification(self):
+   #for each word returns structure as follows:
+   # gender: string
+   # declination: string
+   # description: string
+   # deepDescription: string 
+   # None if info is not available
+   def mono_entry_reader(self, word, lowerCaseWord, errorFileName):
        pass 
   
    @abstractmethod

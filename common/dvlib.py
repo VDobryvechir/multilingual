@@ -260,9 +260,36 @@ def cleanWholeFolder(path, prefix, suffix):
             if entry.is_file() and entry.name.startswith(prefix) and entry.name.endswith(suffix):
                 os.remove(path + joiner + entry.name)
 
+def findMapNewWords(srcMap, dstMap):
+    words=[]
+    for key in srcMap:
+       if key not in dstMap:
+          words.append(key) 
+    return words
 
+def saveJsonWithBackup(data, fileName):
+    backUp= fileName + "backup"
+    if os.path.exists(backUp):
+       os.remove(backUp)
+    if os.path.exists(fileName):
+       os.rename(fileName, backUp)
+    with open(fileName, 'w', encoding='utf8') as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=2)
 
+def readMapFromFileIfExists(fileName):
+    if not os.path.exists(fileName):
+       return {}
+    with open(fileName, encoding='utf-8') as fMapData:
+          mapData = json.load(fMapData)
+    return mapData
 
+def reportError(errorFileName, message):
+    if not os.path.exists(fileName):
+       with open(fileName, "w") as file:
+          file.write(f"{message}\n")
+    else:
+       with open(fileName, "a") as file:
+          file.write(f"{message}\n")
 
 
 
