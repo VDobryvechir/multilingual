@@ -2,7 +2,7 @@ from common import *
 from common.enrich_mono_dictionary import EnrichMonoDictionary
 
 langFilter = ["nb"]
-testMode = (True, "[folder]multi_[lang].json","[folder]mono_[lang].json")
+testMode = (False, "[folder]multi_[lang].json","[folder]mono_[lang].json")
 
 #--------------------------------------------------------------------------------------------------------
 langs = config["languages"]
@@ -17,5 +17,5 @@ for lang in langs:
        res = enrichEngine.processEnrichment(mono, multi)    
     else:
        res = enrichEngine.processDefault()
-print(f"enriching word dictionary successfully finished: {res}")
+print(f"enriching mono dictionary successfully finished: {res}")
 

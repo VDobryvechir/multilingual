@@ -8,15 +8,30 @@ class EnrichMonoDictionary:
        self.defMonoDictFile = config["sources"]["monoDictionary"].replace("[lang]",lang)
        self.defMultiDictFile = config["sources"]["multiDictionary"].replace("[lang]",lang)      
        self.config = config
+       self.dictionary = None
 
    def getWordDictionary(self):
+       if self.dictionary is not None:
+            return self.dictionary
        folder = self.config["sources"]["ordbok"]
        options = self.config["ordbok"][self.lang]
        dictionary = common.word_dictionary_factory.WordDictionaryFactory.create_instance(self.lang, folder, options)
+       self.dictionary = dictionary
        return dictionary
 
    def processDefault(self):
        return self.processEnrichment(self.defMonoDictFile, self.defMultiDictFile)
+
+   def isWordNative(self, word):
+       dictionary = self.getWordDictionary()
+       return dictionary.is_word_native(word)
+   
+   def getWordSources(self, word):
+       errorFileName = self.defMonoDictFile + "_error"
+       lowerCaseWord = word.lower()
+       dictionary = self.getWordDictionary()
+       res = dictionary.get_all_sources(word, lowerCaseWord, errorFileName)
+       return res
 
    def processEnrichment(self, monoDictFile, multiDictFile):
        dictionary = self.getWordDictionary()

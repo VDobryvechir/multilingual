@@ -19,12 +19,19 @@ class WordDictionary:
    # declination: string
    # description: string
    # deepDescription: string 
+   # expression: map<string, {description:string, deepDescription: string}>
    # None if info is not available
    def mono_entry_reader(self, word, lowerCaseWord, errorFileName):
        pass 
   
    @abstractmethod
-   #return all definitions in the same language separated by semicolumn and space
-   def all_definitions(self, word):
+   #return list of all sources as json objects        
+   def get_all_sources(self, word, lowerCaseWord, errorFileName):
        pass    
 
+   @abstractmethod
+   # word is a string to be tested
+   #return True if word is native or False otherwise  
+   def is_word_native(self, word):
+       pass
+   

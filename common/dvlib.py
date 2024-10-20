@@ -169,53 +169,6 @@ def extractWordsFromLines(res,lines):
     for line in lines:
          extractWordsFromLine(res,line)
                       
-def helpTranslate(projId, token, q, srcLang, dstLang, res):
-    if srcLang=="nb" or srcLang=="nn":
-        srcLang="no"
-    if dstLang=="nb" or dstLang=="nn":
-        dstLang="no"
-    body1 = '{"q":['
-    body2 = '],"source":"' + srcLang + '","target":"' + dstLang + '","format":"text"}'
-    separ = ''
-    for qitem in q:
-        body1 += separ + '"' + qitem + '"'
-        separ = ','
-    body = (body1 + body2).encode("utf-8")
-    req = Request('https://translation.googleapis.com/language/translate/v2', data=body, method="POST")
-    req.add_header('Authorization', 'Bearer '+token)
-    req.add_header('x-goog-user-project', projId)
-    req.add_header('Content-Type', 'application/json; charset=utf-8')
-    content = urlopen(req).read().decode('utf-8')
-    data = json.loads(content)
-    if ('data' in data) and ("translations" in data['data']):
-        items = data["data"]["translations"]
-    else:
-        print("no data in response: " + content)
-        return 0
-    for item in items:
-        res.append(item["translatedText"])   
-    return len(items)
-
-def bulkTranslate(projId, token, qlist, srcLang, dstLang, batchSize, limitation):
-    n = len(qlist)
-    if n>limitation:
-        n=limitation
-    i=0
-    res=[]
-    while i<n:
-        amnt = n-i
-        if amnt>batchSize:
-           amnt=batchSize
-        q = qlist[i : i + amnt]
-        p = helpTranslate(projId, token, q, srcLang, dstLang, res)
-        print(str(p) + " translated")    
-        if p==amnt:
-            i+=amnt
-        else:
-           print('Aborted bulk because returned '+str(p) + ' instead of '+str(amnt))
-           i=n
-    return res
-
 def copyWordShortInfo(words, lang, diction):
     res=""
     for word in words:
@@ -284,11 +237,11 @@ def readMapFromFileIfExists(fileName):
     return mapData
 
 def reportError(errorFileName, message):
-    if not os.path.exists(fileName):
-       with open(fileName, "w") as file:
+    if not os.path.exists(errorFileName):
+       with open(errorFileName, "w") as file:
           file.write(f"{message}\n")
     else:
-       with open(fileName, "a") as file:
+       with open(errorFileName, "a") as file:
           file.write(f"{message}\n")
 
 
