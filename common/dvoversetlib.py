@@ -1,5 +1,5 @@
 from urllib.request import Request, urlopen
-import json,os, urllib.parse
+import json
                       
 def helpTranslate(projId, token, q, srcLang, dstLang, res):
     if srcLang=="nb" or srcLang=="nn":
@@ -12,11 +12,13 @@ def helpTranslate(projId, token, q, srcLang, dstLang, res):
     for qitem in q:
         body1 += separ + '"' + qitem + '"'
         separ = ','
+    n = len(body1)    
     body = (body1 + body2).encode("utf-8")
     req = Request('https://translation.googleapis.com/language/translate/v2', data=body, method="POST")
     req.add_header('Authorization', 'Bearer '+token)
     req.add_header('x-goog-user-project', projId)
     req.add_header('Content-Type', 'application/json; charset=utf-8')
+    print(f" token=[{token}]  project=[{projId}]")
     content = urlopen(req).read().decode('utf-8')
     data = json.loads(content)
     if ('data' in data) and ("translations" in data['data']):
@@ -26,20 +28,22 @@ def helpTranslate(projId, token, q, srcLang, dstLang, res):
         return 0
     for item in items:
         res.append(item["translatedText"])   
-    return len(items)
+    return (len(items), n)
 
 def bulkTranslate(projId, token, qlist, srcLang, dstLang, batchSize, limitation, saver):
     n = len(qlist)
     if n>limitation:
         n=limitation
     i=0
+    count = 0
     while i<n:
         res=[]
         amnt = n-i
         if amnt>batchSize:
            amnt=batchSize
         q = qlist[i : i + amnt]
-        p = helpTranslate(projId, token, q, srcLang, dstLang, res)
+        p, cnt = helpTranslate(projId, token, q, srcLang, dstLang, res)
+        count += cnt
         print(str(p) + " translated")    
         if p==amnt:
             i+=amnt
@@ -47,7 +51,7 @@ def bulkTranslate(projId, token, qlist, srcLang, dstLang, batchSize, limitation,
         else:
            print('Aborted bulk because returned '+str(p) + ' instead of '+str(amnt))
            break
-    return str(i)+" of "+str(n) + " translated"
+    return str(i)+" of "+str(n) + " translated " + str(count) + " characters"
 
 def findNonTranslatedEntries(translMap, lang):
     res = []
@@ -81,3 +85,4 @@ def manageBulkTranslate(srcLang, dstLang, batchSize, limitation, config, fileNam
     res=bulkTranslate(projId, token, newList, srcLang, dstLang, batchSize, limitation, saverTranslation)
     return res
 
+    

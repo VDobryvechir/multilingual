@@ -227,4 +227,76 @@ def containDictionaryWholeLowerWord(dictMap, lowerWord):
         if containWholeWord(item, lowerWord):
             return True
     return False
+
+
+def extractPhrasesFromEntry(res, entry):
+    if entry is None:
+        return
+    if "description" in entry:
+        common.dvlib.extractPhrasesFromLine(res, entry["description"], True, common.dvlib.separatorsSemicolumnComma)
+    if "deepDescription" in entry:
+        common.dvlib.extractPhrasesFromLine(res, entry["deepDescription"], True, common.dvlib.separatorsSemicolumn)
+    if "expression" in entry and entry["expression"] is not None:
+        mp = entry["expression"]
+        for key in mp:
+            common.dvlib.extractPhrasesFromLine(res, key, True, common.dvlib.separatorsSemicolumn)
+            item = mp[key]
+            if "description" in item:
+                common.dvlib.extractPhrasesFromLine(res, item["description"], True, common.dvlib.separatorsSemicolumnComma)
+            if "deepDescription" in item:
+                common.dvlib.extractPhrasesFromLine(res, item["deepDescription"], True, common.dvlib.separatorsSemicolumn)
+
+def extractPhrasesFromEntryMap(res, entryMap):
+    if entryMap is None:
+        return
+    for entry in entryMap:
+        extractPhrasesFromEntry(res, entryMap[entry])
+
+def origCopy(entry, txt):
+    res = {"orig": txt}
+    if "tr" in entry:
+        res["tr"] = entry["tr"]
+    return res
     
+def enrichLineWithTranslation(txt, sdict, fdict):
+    lowCase = txt.lower() 
+    if lowCase in sdict:
+        return origCopy(sdict[lowCase], txt)
+    if lowCase in fdict:
+        return origCopy(fdict[lowCase], txt)
+    return {}
+
+def enrichTextWithTranslation(txt, sdict, fdict, separ):
+    pool = []
+    common.dvlib.extractPhrasesFromLine(pool, txt, False, separ)
+    res = []
+    for line in pool:
+        data = enrichLineWithTranslation(line, sdict, fdict)
+        res.append(data)
+    return res
+
+def enrichMultiWithMono(multiEntry, monoEntry, sdict, fdict):
+    if "gender" in monoEntry:
+        multiEntry["gender"] = monoEntry["gender"]
+    if "declination" in monoEntry:
+        multiEntry["declination"] = monoEntry["declination"]
+    if "description" in monoEntry:
+        multiEntry["description"] = enrichTextWithTranslation(monoEntry["description"], sdict, fdict, common.dvlib.separatorsSemicolumnComma)
+    if "deepDescription" in monoEntry:
+        multiEntry["deepDescription"] = enrichTextWithTranslation(monoEntry["deepDescription"], sdict, fdict, common.dvlib.separatorsSemicolumn)
+    if "expression" in monoEntry and monoEntry["expression"] is not None:
+        expressionPool = [];
+        data = monoEntry["expression"]
+        for line in data:
+            item = {"orig": line}
+            tran = enrichLineWithTranslation(line, sdict, fdict)
+            item["tran"] = tran
+            elem = data[line]
+            if "description" in elem:
+                item["description"]=enrichTextWithTranslation(elem["description"], sdict, fdict, common.dvlib.separatorsSemicolumnComma) 
+            if "deepDescription" in elem:
+                item["deepDescription"]=enrichTextWithTranslation(elem["deepDescription"], sdict, fdict, common.dvlib.separatorsSemicolumn) 
+            expressionPool.append(item)    
+        multiEntry["expression"] = expressionPool
+        
+

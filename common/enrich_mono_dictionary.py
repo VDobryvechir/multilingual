@@ -69,3 +69,25 @@ class EnrichMonoDictionary:
           common.dvlib.saveJsonWithBackup(missData, missFileName) 
        res = f" total {multiNewSize}, added {monoAdded}, missed {monoMissed}"
        return res
+
+   def fixPhraseDictionaryDefault(self):
+       return self.fixPhraseDictionary(self.defMultiDictFile)
+
+   def fixPhraseDictionary(self, multiDictionary):
+       with open(multiDictFile, encoding='utf-8') as fmultiDictFile:
+          multiData = json.load(fmultiDictFile)
+       newMultiData = {}
+       count = 0
+       for word in multiData:
+           entry = multiData[word]
+           orig = entry["or"]
+           fword = word
+           change, orig = self.fixPhraseDictionary(orig)
+           if change:
+               count += 1
+               fword = word.toLower()
+               entry["or"]=orig
+           newMultiData[fword] = entry 
+       common.dvlib.saveJsonWithBackup(newMultiData, multiDictFile)
+       return count
+ 	

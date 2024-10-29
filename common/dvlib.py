@@ -1,6 +1,9 @@
 from urllib.request import Request, urlopen
 import json,os, urllib.parse
 
+separatorsSemicolumn = {';'}
+separatorsSemicolumnComma = {';', ','}
+
 def convertIntToUtf8(n):
     buf = [n]
     if n>0x7f:
@@ -165,6 +168,44 @@ def extractWordsFromLine(res,s):
                       res.append(w)
      return res
 
+def extractPhrasesFromLine(res, s, onlyMulti, separators):
+     isWordStarted = False
+     n = len(s)
+     i = 0
+     startPos = 0
+     phrasePos = -1
+     endPos = 0
+     while i<n:
+         t = s[i]
+         c = evaluateLetter(t)
+         if isWordStarted: 
+              match c:
+                  case 1:
+                      endPos = i+1
+                  case -1:
+                      isWordStarted = False
+                      if t not in separators:
+                          if phrasePos<0:
+                              phrasePos = startPos
+                      else: 
+                          if phrasePos>=0 or not onlyMulti:
+                              pos = phrasePos if phrasePos>=0 else startPos                                 
+                              w= s[pos: endPos]
+                              res.append(w)
+                              phrasePos = -1
+         else: 
+             match c:
+                  case 1:
+                      startPos = i
+                      endPos = i+1
+                      isWordStarted = True
+         i+=1
+     if isWordStarted and (phrasePos>=0 or not onlyMulti):
+                      pos = phrasePos if phrasePos>=0 else startPos
+                      w= s[pos: endPos]
+                      res.append(w)
+     return res
+
 def extractWordsFromLines(res,lines):
     for line in lines:
          extractWordsFromLine(res,line)
@@ -244,5 +285,6 @@ def reportError(errorFileName, message):
        with open(errorFileName, "a") as file:
           file.write(f"{message}\n")
 
-
-
+def loadLangFile(name, lang):
+    name = name.replace("[lang]",lang)    
+    return readMapFromFileIfExists(name)
